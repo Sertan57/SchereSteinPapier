@@ -1,0 +1,122 @@
+﻿<Window x:Class="SchereSteinPapier.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:SchereSteinPapier"
+        xmlns:p = "clr-namespace:SchereSteinPapier.Properties"
+        mc:Ignorable="d"
+        Title="{x:Static p:Resources.Window_Title}" Height="600" Width="600" MinHeight="400" MinWidth="400">
+
+    <Window.DataContext>
+        <local:MainWindowViewModel/>
+    </Window.DataContext>
+    <Window.Resources>
+        <!-- Needed for converting booleans for vibility-properties like hidden or visible.-->
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibility"/>
+
+        <!-- Style definitions for targeted control types.-->
+        <Style TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="5"/>
+        </Style>
+        <Style TargetType="Button">
+            <Setter Property="Margin" Value="10"/>
+        </Style>
+    </Window.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <!-- Row for the score bar of player two. -->
+            <RowDefinition Height="50" />
+            <!-- Row for the "playing field" of player two. -->
+            <RowDefinition Height="*" />
+            <!-- Row for the "playing field" of player one. -->
+            <RowDefinition Height="*" />
+            <!-- Row for the score bar of player one. -->
+            <RowDefinition Height="50" />
+        </Grid.RowDefinitions>
+
+        
+        <!-- Row for the score bar of player two. -->
+        <Grid Grid.Row="0" Background="LightGray">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="{x:Static p:Resources.PlayerTwo_Score}" TextAlignment="Left"/>
+            <TextBlock Grid.Column="1" Text="{Binding PlayerTwo.Score, Mode=OneWay}" TextAlignment="Left" />
+            <TextBlock Grid.Column="2" Text="{x:Static p:Resources.Text_RoundsCount}" TextAlignment="Left" />
+            <TextBlock Grid.Column="3" Text="{Binding RoundsCount, Mode=OneWay}" TextAlignment="Left" />
+        </Grid>
+
+        <!-- Row for the "playing field" of player two. -->
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="1" Background="LightGray" Margin="10">
+                <Border BorderThickness="1" BorderBrush="Gray" />
+                <Image Source="{Binding CurrentRound.PlayerTwoSelection.ImageFilePath}"/>
+                <Image Source="Assets/Textures/QuestionMark.png" Visibility="{Binding CurrentRound.NotCompleted, Converter={StaticResource BooleanToVisibility}}"/>
+            </Grid>
+        </Grid>
+
+        <Border Grid.Row="1" BorderThickness="2" VerticalAlignment="Bottom" BorderBrush="DarkRed"/>
+
+        <!-- Row for the "playing field" of player one. -->
+        <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2"
+              Visibility="{Binding Path=GameNotEnded, Converter={StaticResource BooleanToVisibility}}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <!-- Scissors Button -->
+            <Button Grid.Column="0" Command="{Binding SelectScissorsCommand}"
+                    Visibility="{Binding Path=PlayerOneSelectedScissors, Converter={StaticResource BooleanToVisibility}}">
+                <Image Source="Assets/Textures/Scissors.png"/>
+            </Button>
+            <!-- Stone Button -->
+            <Button Grid.Column="1" Command="{Binding SelectStoneCommand}"
+                    Visibility="{Binding Path=PlayerOneSelectedStone, Converter={StaticResource BooleanToVisibility}}">
+                <Image Source="Assets/Textures/Stone.png"/>
+            </Button>
+            <!-- Paper Button -->
+            <Button Grid.Column="2" Command="{Binding SelectPaperCommand}"
+                    Visibility="{Binding Path=PlayerOneSelectedPaper, Converter={StaticResource BooleanToVisibility}}">
+                <Image Source="Assets/Textures/Paper.png"/>
+            </Button>
+        </Grid>
+        
+        <!-- Row for the win and lose texts. They are only visible if the game is over.-->
+        <Grid Grid.Row="2" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid Visibility="{Binding Path=PlayerOneWon, Converter={StaticResource BooleanToVisibility}}">
+                <TextBlock Text="{x:Static p:Resources.Text_Win}"></TextBlock>
+            </Grid>
+            <Grid Visibility="{Binding Path=PlayerTwoWon, Converter={StaticResource BooleanToVisibility}}">
+                <TextBlock Text="{x:Static p:Resources.Text_Lose}"></TextBlock>
+            </Grid>
+        </Grid>
+
+        <!-- Row for the score bar of player one. -->
+        <Grid Grid.Row="3" Background="LightGray">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="120"/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0" Text="{x:Static p:Resources.PlayerOne_Score}" TextAlignment="Left"/>
+            <TextBlock Grid.Column="1" Text="{Binding PlayerOne.Score, Mode=OneWay}" TextAlignment="Left" />
+            <!-- Restart Button is only enabled if the current round is not completed to avoid the user from accidentally restarting. -->
+            <Button Grid.Column="2" Command="{Binding RestartCommand}" Width="100" Height="25"
+                    Content="{x:Static p:Resources.Button_Restart}"/>
+        </Grid>
+    </Grid>
+</Window>
